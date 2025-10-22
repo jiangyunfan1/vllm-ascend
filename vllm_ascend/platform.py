@@ -88,6 +88,10 @@ class NPUPlatform(Platform):
         return torch.npu.get_device_name(device_id)
 
     @classmethod
+    def is_async_output_supported(cls, enforce_eager: Optional[bool]) -> bool:
+        return True
+
+    @classmethod
     def inference_mode(cls):
         return torch.inference_mode()
 
@@ -314,14 +318,6 @@ class NPUPlatform(Platform):
                 vllm_config.scheduler_config)
             vllm_config.scheduler_config = recompute_scheduler_config
 
-        # Extend original scheduler_config to use SchedulerDynamicBatch.
-        if ascend_config.SLO_limits_for_dynamic_batch != -1:
-            vllm_config.scheduler_config.scheduler_cls = (
-                "vllm_ascend.core.scheduler_dynamic_batch.SchedulerDynamicBatch"
-            )
-            vllm_config.scheduler_config.chunked_prefill_enabled = True
-            vllm_config.scheduler_config.SLO_limits_for_dynamic_batch = ascend_config.SLO_limits_for_dynamic_batch
-
     @classmethod
     def get_attn_backend_cls(
         cls,
@@ -381,6 +377,13 @@ class NPUPlatform(Platform):
 
     @classmethod
     def is_pin_memory_available(cls):
+        return True
+
+    @classmethod
+    def supports_v1(cls, model_config: ModelConfig) -> bool:
+        """Returns whether the current platform can support v1 for the supplied
+        model configuration.
+        """
         return True
 
     @classmethod

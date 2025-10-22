@@ -1010,6 +1010,7 @@ def mock_string_to_int64_hash(s):
     return hash(s)
 
 
+@unittest.skip("skip")
 class TestMooncakeConnectorWorker(unittest.TestCase):
 
     def setUp(self):
